@@ -24,8 +24,8 @@ Both compressed files must be placed in the directory for the command below to w
 
 To run it all: go to the dist/ directory in your terminal and run
 
-	java -jar wikiforia-1.0-SNAPSHOT.jar 
-	     -pages [path to the file ending with multistream.xml.bz2] 
+	java -jar wikiforia-1.0-SNAPSHOT.jar
+	     -pages [path to the file ending with multistream.xml.bz2]
 	     -output [output xml path]
 
 This will run with default settings i.e. the number of cores you have and a batch size of 100. These settings can be overriden, for a full listing just run:
@@ -38,10 +38,10 @@ The output from the tool is an XML with the following structure (example data)
 
 	<?xml version="1.0" encoding="utf-8"?>
 	<pages>
-	
-	<page id="4" title="Alfred" revision="1386155063000" type="text/x-wiki" ns-id="0" ns-name="">Alfred, 
+
+	<page id="4" title="Alfred" revision="1386155063000" type="text/x-wiki" ns-id="0" ns-name="">Alfred,
 	with a new line</page>
-	
+
 	<page id="10" title="Template:Infobox" revision="1386155040000" type="text/x-wiki" ns-id="10" ns-name="Template">Template stuff</page>
 	</pages>
 
@@ -52,16 +52,16 @@ The output from the tool is an XML with the following structure (example data)
 
   <dt>title</dt>
   <dd>The title of the Wikipedia page</dd>
-  
+
   <dt>revision</dt>
   <dd>The revision as given by the dump, but in milliseconds since UNIX epoch time</dd>
-  
+
   <dt>type</dt>
   <dd>the format, will always be text/x-wiki in this version of the tool</dd>
-  
+
   <dt>ns-id</dt>
   <dd>The namespace id, 0 is the principal namespace which contains all articles, take a look at Namespaces at [Wikipedia for more information](http://en.wikipedia.org/wiki/Wikipedia:Namespace)</dd>
-  
+
   <dt>ns-name</dt>
   <dd>Localized name for the namspace, for 0 it is usually just an empty string</dd>
 </dl>
@@ -73,10 +73,28 @@ Use Case: extract text only from the Wikipedia e.g in order to use it as a Corpu
 
 To run it: Download wikiforia-x.y.z.jar from dist/ directory, open your terminal, go/cd to download location and run
 
-	java -jar wikiforia-x.y.z.jar 
-	     -pages [path to the file ending with multistream.xml.bz2] 
+	java -jar wikiforia-x.y.z.jar
+	     -pages [path to the file ending with multistream.xml.bz2]
 	     -output [output xml path]
 	     -outputformat plain-text
+
+CVS export
+----------------
+Contributed by @hinneburg, support for CSV output format on top of existing XML format. The generated CSV file is in UTF-8 encoding, uses `,` as delimiter, double quotes `"` as text qualifier and backslash `\` as escape character. The first line of the file contains the header with the column names:
+```
+page_id,title,revision,type,ns_id,ns_name,text
+```
+According to the CSV standard, the strings in the text column are wrapped in double quotes. Those record elements span over multiple lines as most Wikipedia pages contain newline characters. Thus, it is best to use a capable csv library like [javacsv](https://www.csvreader.com/java_csv_samples.php) or [Apache commons-csv](https://commons.apache.org/proper/commons-csv/) to read the extracted data.
+
+Use Case: extract same information as contained in the XML output from the Wikipedia to use it as input for further analysis in big data platforms like [Apache Spark](https://spark.apache.org/) that can handle CSV files easier than XML.
+
+To run it: Download wikiforia-x.y.z.jar from dist/ directory, open your terminal, go/cd to download location and run
+
+	java -jar wikiforia-x.y.z.jar
+	     -pages [path to the file ending with multistream.xml.bz2]
+			 -index [path to the file ending with multistream-index.txt.bz2]
+	     -output [output csv file]
+	     -outputformat csv
 
 ### Remarks ###
 Empty articles, for which no text could be found is not included. This includes redirects and most of the templates and categories, because they have no useful text. If you use the API you can extract this bit of information.

@@ -20,6 +20,8 @@ import org.apache.commons.cli.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import se.lth.cs.nlp.io.CsvWikipediaPageWriter;
 import se.lth.cs.nlp.io.PlainTextWikipediaPageWriter;
 import se.lth.cs.nlp.io.SimpleHadoopTextWriter;
 import se.lth.cs.nlp.io.XmlWikipediaPageWriter;
@@ -117,13 +119,14 @@ public class App
 
     @SuppressWarnings("static-access")
     private static final Option outputFormatOption = OptionBuilder.withLongOpt("output-format")
-            .withDescription("Output format : xml or plain-text")
+            .withDescription("Output format : xml or plain-text or csv")
             .hasArg()
             .withArgName("outputformat")
             .create("outputformat");
 
     private static final String OUTPUT_FORMAT_XML = "xml";
     private static final String OUTPUT_FORMAT_PLAIN_TEXT = "plain-text";
+    private static final String OUTPUT_FORMAT_CSV = "csv";
     private static final String OUTPUT_FORMAT_DEFAULT = OUTPUT_FORMAT_XML;
 
     /**
@@ -248,8 +251,12 @@ public class App
      * @return Sink
      */
     private static Sink<WikipediaPage> getSink(String outputFormat, File outputPath) {
-        return outputFormat != null && outputFormat.trim().equalsIgnoreCase(OUTPUT_FORMAT_PLAIN_TEXT)
-                ? new PlainTextWikipediaPageWriter(outputPath) : new XmlWikipediaPageWriter(outputPath);
+    	switch (outputFormat.trim()) {
+    	  case OUTPUT_FORMAT_XML : return new XmlWikipediaPageWriter(outputPath);
+    	  case OUTPUT_FORMAT_PLAIN_TEXT :return new PlainTextWikipediaPageWriter(outputPath);
+    	  case OUTPUT_FORMAT_CSV  : return new CsvWikipediaPageWriter(outputPath);
+    	  default : return new XmlWikipediaPageWriter(outputPath);
+    	}    	
     }
 
     /**
